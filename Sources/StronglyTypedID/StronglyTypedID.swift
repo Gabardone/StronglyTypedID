@@ -49,7 +49,7 @@ public extension StronglyTypedID where Self: Comparable, RawValue: Comparable {
    - adopts: Optionally, a comma separated list of protocols that the ID type also adopts.
  */
 @freestanding(declaration, names: arbitrary)
-public macro StronglyTypedID<T, each U>(_ name: StaticString, backing: T.Type, adopts: repeat each U) = #externalMacro(
+public macro StronglyTypedID<T, each U>(_ name: StaticString, backing: T.Type, adopts: repeat (each U).Type) = #externalMacro(
     module: "StronglyTypedIDMacros",
     type: "StronglyTypedIDMacro"
 )
