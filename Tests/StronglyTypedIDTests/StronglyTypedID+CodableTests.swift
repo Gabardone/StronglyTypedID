@@ -128,7 +128,7 @@ final class StronglyTypedID_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue, uuid)
+        XCTAssertEqual(dataStruct.id.rawValue, UUID(uuidString: decodedData.id))
         XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
         XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
     }

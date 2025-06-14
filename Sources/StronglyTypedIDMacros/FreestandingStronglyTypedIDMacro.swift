@@ -1,68 +1,47 @@
 //
-//  StronglyTypedIDMacros.swift
+//  FreestandingStronglyTypedIDMacro.swift
 //
 //
 //  Created by Óscar Morales Vivó on 9/20/23.
 //
 
-import SwiftCompilerPlugin
-import SwiftDiagnostics
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-@main
-struct StronglyTypedIDMacrosTestPlugin: CompilerPlugin {
-    let providingMacros: [Macro.Type] = [
-        StronglyTypedIDMacro.self
-    ]
-}
-
-public struct StronglyTypedIDMacro {}
+public struct FreestandingStronglyTypedIDMacro {}
 
 // MARK: - DeclarationMacro Adoption
 
-extension StronglyTypedIDMacro: DeclarationMacro {
+extension FreestandingStronglyTypedIDMacro: DeclarationMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in _: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let arguments = node.arguments
-        guard arguments.count >= 2 else {
+        let parameters = node.arguments
+        guard parameters.count == 1 else {
             // This should only happen due to toolset error or out of sync macro declaration so let's blow up.
-            preconditionFailure("Unexpected argument count \(arguments.count). Toolset shouldn't have made it this far")
+            preconditionFailure("Unexpected argument count \(parameters.count). Toolset shouldn't have made it this far")
         }
 
         // Get the ID type name from the first parameter.
-        let typeName = extractStringArgument(arguments[arguments.startIndex])
+        let typeName = extractStringArgument(parameters[parameters.startIndex])
 
-        // Grab the second parameter (backing type).
-        let backingIndex = arguments.index(after: arguments.startIndex)
-        let backingArgument = arguments[backingIndex].expression
-        let backingTypeName = extractTypeArgument(backingArgument)
-
-        // Check if there's adoption arguments and return a simplified declaration if not.
-        let firstAdoptionIndex = arguments.index(after: backingIndex)
-        guard firstAdoptionIndex != arguments.endIndex else {
-            // No adoptions, let's just return and build.
-            let result =
-                """
-                struct \(typeName): StronglyTypedID {
-                    var rawValue: \(backingTypeName)
-                }
-                """
-            return ["\(raw: result)"]
+        guard let generics = node.genericArgumentClause else {
+            preconditionFailure("Unexpectedly there are no generic arguments")
         }
 
-        // Grab the adoptions identifiers.
-        let adoptions = arguments[firstAdoptionIndex...].map { element in
-            extractTypeArgument(element.expression)
+        guard generics.arguments.count >= 1 else {
+            preconditionFailure("Unexpected generic count \(generics.arguments.count). Toolset shouldn't have made it this far")
         }
 
-        // Build up result.
+        // Grab the backing type.
+        let backingIndex = generics.arguments.startIndex
+        let backingTypeName = generics.arguments[backingIndex].argument.as(IdentifierTypeSyntax.self)!
+
+        // No adoptions, let's just return and build.
         let result =
             """
-            struct \(typeName): StronglyTypedID, \(adoptions.joined(separator: ", ")) {
+            struct \(typeName): StronglyTypedID {
                 var rawValue: \(backingTypeName)
             }
             """
