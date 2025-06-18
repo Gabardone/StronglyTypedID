@@ -5,11 +5,12 @@
 //  Created by Óscar Morales Vivó on 9/21/23.
 //
 
+import Foundation
 import Identity
 import SwiftDiagnostics
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
-import XCTest
+import Testing
 
 // Macro implementations build for the host, so the corresponding module is not available when cross-compiling.
 // Cross-compiled tests may still make use of the macro itself in end-to-end tests.
@@ -29,9 +30,9 @@ protocol SomeProtocol {}
 
 protocol SomeOtherProtocol {}
 
-final class IdentifierMacroTests: XCTestCase {
+struct IdentifierMacroTests {
     // Not quite a unit test but a check that the macro actually expands.
-    func testBuildSimpleFreestandingMacro() throws {
+    @Test func buildSimpleFreestandingMacro() throws {
         struct TestStruct: Identifiable {
             // Declaration has to happen in a different scope than creation. Within a local `struct` works.
             #Identifier<UUID>("TestID")
@@ -43,7 +44,15 @@ final class IdentifierMacroTests: XCTestCase {
         _ = TestStruct.TestID.unique()
     }
 
-    func testFreestandingMacroWithNoExtraAdoption() throws {
+    private static var canRunMacroTests: Bool {
+        #if canImport(IdentityMacros)
+        return true
+        #else
+        return false
+        #endif
+    }
+
+    @Test(.enabled(if: canRunMacroTests)) func freestandingMacroExpansion() throws {
         #if canImport(IdentityMacros)
         assertMacroExpansion(
             """
@@ -56,12 +65,10 @@ final class IdentifierMacroTests: XCTestCase {
             """,
             macros: testFreestandingMacros
         )
-        #else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
 
-    func testAttachedMacro() throws {
+    @Test(.enabled(if: canRunMacroTests)) func attachedMacroSimpleUseExpansion() throws {
         #if canImport(IdentityMacros)
         assertMacroExpansion(
             """
@@ -85,12 +92,10 @@ final class IdentifierMacroTests: XCTestCase {
             """,
             macros: testAttachedMacros
         )
-        #else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
 
-    func testAttachedMacroWithExtraAdoptions() throws {
+    @Test(.enabled(if: canRunMacroTests)) func attachedMacroWithExtraAdoptions() throws {
         #if canImport(IdentityMacros)
         assertMacroExpansion(
             """
@@ -113,8 +118,6 @@ final class IdentifierMacroTests: XCTestCase {
             """,
             macros: testAttachedMacros
         )
-        #else
-        throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
 }

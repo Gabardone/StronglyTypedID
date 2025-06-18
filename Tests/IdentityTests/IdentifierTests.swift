@@ -1,16 +1,24 @@
-import Identity
-import XCTest
+//
+//  IdentifierTests.swift
+//
+//
+//  Created by Óscar Morales Vivó on 3/21/23.
+//
 
-final class IdentifierTests: XCTestCase {
+import Foundation
+import Identity
+import Testing
+
+struct IdentifierTests {
     @Identifier<Int>
     struct DummyIDType: Comparable {}
 
     // Mostly testing that the Swift type system does what we expect.
-    func testComparableIdentifier() {
+    @Test func comparableIdentifierBehavesAsExpected() {
         let dummyID1 = DummyIDType(rawValue: 7)
         let dummyID2 = DummyIDType(rawValue: 77)
 
-        XCTAssert(dummyID1 < dummyID2)
+        #expect(dummyID1 < dummyID2)
     }
 
     struct PersonName: Hashable, Codable {
@@ -20,7 +28,7 @@ final class IdentifierTests: XCTestCase {
     }
 
     // Testing using a non-trivial value type as an ID type.
-    func testComplexIdentifier() {
+    @Test func complexIdentifierWorks() {
         struct Person {
             #Identifier<PersonName>("ID")
 
@@ -40,7 +48,7 @@ final class IdentifierTests: XCTestCase {
         let john = Person(firstName: "John", lastName: "Doe", isCool: false, hasTheRizz: false)
         let mary = Person(firstName: "Mary", lastName: "Sue", isCool: false, hasTheRizz: true)
 
-        XCTAssertNotEqual(john.id, mary.id)
+        #expect(john.id != mary.id)
     }
 }
 

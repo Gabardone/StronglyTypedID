@@ -6,13 +6,14 @@
 //
 
 import Identity
+import Testing
 import XCTest
 
 // swiftlint:disable nesting
-final class Identifier_CodableTests: XCTestCase {
+struct Identifier_CodableTests {
     // Tests that `String`-based Strongly typed IDs will encode/decode as just a plain string. Very useful for backend
     // ID decoding...
-    func testStringIDCodable() throws {
+    @Test func stringIDEncodesDecodesAsString() throws {
         struct DataStruct: Identifiable, Codable {
             struct ID: Identifier {
                 var rawValue: String
@@ -43,14 +44,14 @@ final class Identifier_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue, decodedData.id)
-        XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
-        XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
+        #expect(dataStruct.id.rawValue == decodedData.id)
+        #expect(dataStruct.dataString == decodedData.dataString)
+        #expect(dataStruct.dataInteger == decodedData.dataInteger)
     }
 
     // Tests that `URL`-based Strongly typed IDs will encode/decode as just a plain string. Very useful for backend ID
     // decoding...
-    func testURLIDCodable() throws {
+    @Test func urlIDCodableEncodesAndDecodesAsPlainString() throws {
         struct DataStruct: Identifiable, Codable {
             struct ID: Identifier {
                 var rawValue: URL
@@ -85,14 +86,14 @@ final class Identifier_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue.absoluteString, decodedData.id)
-        XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
-        XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
+        #expect(dataStruct.id.rawValue.absoluteString == decodedData.id)
+        #expect(dataStruct.dataString == decodedData.dataString)
+        #expect(dataStruct.dataInteger == decodedData.dataInteger)
     }
 
     // Tests that `UUID`-based Strongly typed IDs will encode/decode as just a plain string. Very useful for backend ID
     // decoding...
-    func testUUIDCodable() throws {
+    @Test func uuidCodableEncodesDecodesAsLowercaseString() throws {
         struct DataStruct: Identifiable, Codable {
             struct ID: Identifier {
                 var rawValue: UUID
@@ -128,14 +129,15 @@ final class Identifier_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue, UUID(uuidString: decodedData.id))
-        XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
-        XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
+        #expect(dataStruct.id.rawValue == UUID(uuidString: decodedData.id))
+        #expect(dataStruct.id.rawValue.uuidString.lowercased() == decodedData.id)
+        #expect(dataStruct.dataString == decodedData.dataString)
+        #expect(dataStruct.dataInteger == decodedData.dataInteger)
     }
 
-    // Tests that `Int`-based Strongly typed IDs will encode/decode as just a plain string. Very useful for backend ID
+    // Tests that `Int`-based Strongly typed IDs will encode/decode as just a plain integer. Very useful for backend ID
     // decoding...
-    func testIntegerIDCodable() throws {
+    @Test func integerIDCodableEncodesDecodesAsInteger() throws {
         struct DataStruct: Identifiable, Codable {
             struct ID: Identifier {
                 var rawValue: UInt64
@@ -171,14 +173,14 @@ final class Identifier_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue, dumbID)
-        XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
-        XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
+        #expect(dataStruct.id.rawValue == dumbID)
+        #expect(dataStruct.dataString == decodedData.dataString)
+        #expect(dataStruct.dataInteger == decodedData.dataInteger)
     }
 
-    // Tests that `Float`-based Strongly typed IDs will encode/decode as just a plain string. Very useful for backend ID
-    // decoding...
-    func testFloatIDCodable() throws {
+    // Tests that `Float`-based Strongly typed IDs will encode/decode as just a plain floating point value. Very useful
+    // for backend ID decoding...
+    @Test func floatIDCodableEncodesDecodesAsFloat() throws {
         struct DataStruct: Identifiable, Codable {
             struct ID: Identifier {
                 var rawValue: Double
@@ -214,9 +216,9 @@ final class Identifier_CodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(DummyStruct.self, from: encodedData)
 
-        XCTAssertEqual(dataStruct.id.rawValue, dumbID)
-        XCTAssertEqual(dataStruct.dataString, decodedData.dataString)
-        XCTAssertEqual(dataStruct.dataInteger, decodedData.dataInteger)
+        #expect(dataStruct.id.rawValue == dumbID)
+        #expect(dataStruct.dataString == decodedData.dataString)
+        #expect(dataStruct.dataInteger == decodedData.dataInteger)
     }
 }
 
